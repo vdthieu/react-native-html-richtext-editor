@@ -5,6 +5,16 @@ const RichText = requireNativeComponent('RichEditText');
 const RichTextConfig = UIManager.getViewManagerConfig('RichEditText');
 
 class RichTextEditor extends Component {
+    static defaultProps = {
+        onChangeText : () => {}
+    };
+
+    static ALIGNS = {
+        LEFT : 'alignLeft',
+        RIGHT: 'alignRight',
+        CENTER : 'alignCenter'
+    };
+
     fontSize = 10;
 
     setBold = () => {
@@ -23,20 +33,17 @@ class RichTextEditor extends Component {
         UIManager.dispatchViewManagerCommand(this.nodeId,RichTextConfig.Commands.strike,null)
     };
 
-
     setFontSize = fontSize => {
         UIManager.dispatchViewManagerCommand(this.nodeId,RichTextConfig.Commands.editorSize,[fontSize]);
     };
 
     setTextColor = color => {
         color = parseInt(processColor(color));
-        console.log('color',color);
         UIManager.dispatchViewManagerCommand(this.nodeId,RichTextConfig.Commands.editorColor,[color]);
     };
 
     setBackground = color => {
         color = parseInt(processColor(color));
-        console.log('background',color);
         UIManager.dispatchViewManagerCommand(this.nodeId,RichTextConfig.Commands.editorBackground,[color]);
     };
 
@@ -48,16 +55,58 @@ class RichTextEditor extends Component {
         UIManager.dispatchViewManagerCommand(this.nodeId,RichTextConfig.Commands.outdent,null);
     };
 
+    setAlign = position => {
+        const {ALIGNS} = RichTextEditor;
+        if(!Object.keys(ALIGNS).map(key => ALIGNS[key]).includes(position)){
+            return;
+        }
+        UIManager.dispatchViewManagerCommand(this.nodeId,
+            RichTextConfig.Commands[position],null)
+    };
+
+    getHtmlPromise = null;
+    getHtml = () => new Promise(
+         (resolve, reject) => {
+            this.getHtmlPromise = {resolve, reject};
+            UIManager.dispatchViewManagerCommand(this.nodeId,
+                RichTextConfig.Commands.getHtml,null)
+        }
+    );
+
+    onReturnHtml = ({nativeEvent : {html}}) => {
+        if(this.getHtmlPromise){
+            this.getHtmlPromise.resolve(html)
+        }
+    };
+
+    onChangeText = ({nativeEvent : {html}}) => {
+        this.props.onChangeText(html)
+    };
+
     componentDidMount(): void {
         this.nodeId = findNodeHandle(this.richTextRef);
+        const {style} = this.props;
+        if(style){
+            const _style = StyleSheet.flatten(style);
+            if(_style.hasOwnProperty('color')){
+                this.setTextColor(_style.color)
+            }
+            if(_style.hasOwnProperty('backgroundColor')){
+                this.setBackground(_style.backgroundColor)
+            }
+            if(_style.hasOwnProperty('fontSize')){
+                this.setFontSize(parseInt(_style.fontSize))
+            }
+        }
     }
 
     render() {
-        console.log('c',16777216 + parseInt(processColor('rgb(255,0,0)')));
         return (
             <View style={[styles.container,this.props.style]}>
                 <RichText style={styles.flex}
                           ref={ref => this.richTextRef = ref}
+                          onReturnHtml={this.onReturnHtml}
+                          onChangeText={this.onChangeText}
                 />
             </View>
         )
@@ -67,7 +116,9 @@ class RichTextEditor extends Component {
 export default RichTextEditor
 
 const styles = StyleSheet.create({
-    container: {},
+    container: {
+        overflow: 'hidden'
+    },
     flex : {
         flex : 1
     }

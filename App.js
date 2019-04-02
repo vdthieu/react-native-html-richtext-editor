@@ -7,10 +7,10 @@
  */
 
 import React, {Component} from 'react';
-import {Text, View,TouchableOpacity, StyleSheet } from 'react-native';
+import {Text, View,TouchableOpacity, StyleSheet, ViewPropTypes } from 'react-native';
 import Editor from './RichTextEditor'
+import RichTextEditor from "./RichTextEditor/RichTextEditor";
 
-type Props = {};
 export default class App extends Component<Props> {
     fontSize = 20
 
@@ -28,7 +28,7 @@ export default class App extends Component<Props> {
 
     setStrike = () => {
         this.editorRef.setStrike();
-    }
+    };
 
     upFontSize = () => {
         this.fontSize +=1;
@@ -49,7 +49,7 @@ export default class App extends Component<Props> {
     };
 
     componentDidMount(): void {
-        this.editorRef.setFontSize(this.fontSize)
+
     }
 
     render() {
@@ -57,7 +57,8 @@ export default class App extends Component<Props> {
             <View style={styles.container}>
                 <View style={{flex : 1, height :300,}}>
                     <Editor ref = {ref => this.editorRef = ref}
-                            style={{flex : 1}}
+                            style={styles.editor}
+                            onChangeText = {text => console.log('on change',text)}
                     />
                 </View>
                 <View style={{flex: 1}}>
@@ -80,7 +81,7 @@ export default class App extends Component<Props> {
                         <TouchableOpacity style={styles.button}
                                           onPress={this.setStrike}
                         >
-                            <Text>I</Text>
+                            <Text>S</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button}
                                           onPress={this.upFontSize}
@@ -151,43 +152,31 @@ export default class App extends Component<Props> {
                         <TouchableOpacity style={styles.button}
                                           onPress={() => this.editorRef.setOutDent()}
                         >
-                            <Text>BG Blue</Text>
+                            <Text>Outdent</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button}
-                                          onPress={() => this.setBackground('green')}
+                                          onPress={() => this.editorRef.getHtml().then(msg => console.log(msg))}
                         >
-                            <Text>BG Green</Text>
+                            <Text>Get html</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button}
-                                          onPress={() => this.setBackground('gray')}
-                        >
-                            <Text>BG Gray</Text>
-                        </TouchableOpacity>
-
                     </View>
                     {/*row 5*/}
                     <View style={styles.row}>
                         <TouchableOpacity style={styles.button}
-                                          onPress={() => this.editorRef.setIndent()}
+                                          onPress={() => this.editorRef.setAlign(RichTextEditor.ALIGNS.LEFT)}
                         >
-                            <Text>Indent</Text>
+                            <Text>Align Left</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button}
-                                          onPress={() => this.editorRef.setOutDent()}
+                                          onPress={() => this.editorRef.setAlign(RichTextEditor.ALIGNS.RIGHT)}
                         >
-                            <Text>Outdent</Text>
+                            <Text>Align Right</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button}
-                                          onPress={() => this.setBackground('green')}
+                                          onPress={() => this.editorRef.setAlign(RichTextEditor.ALIGNS.CENTER)}
                         >
-                            <Text>BG Green</Text>
+                            <Text>Align Center</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button}
-                                          onPress={() => this.setBackground('gray')}
-                        >
-                            <Text>BG Gray</Text>
-                        </TouchableOpacity>
-
                     </View>
                 </View>
             </View>
@@ -222,5 +211,11 @@ const styles = StyleSheet.create({
         borderWidth : 1,
         justifyContent : 'center',
         alignItems : 'center'
+    },
+    editor:{
+        flex : 1,
+        backgroundColor: 'red',
+        color : 'blue',
+        fontSize : 22
     }
 });

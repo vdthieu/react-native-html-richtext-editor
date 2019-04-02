@@ -5,16 +5,21 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jp.wasabeef.richeditor.RichEditor;
 
-public class RichTextManager extends SimpleViewManager<RichEditor> {
+import static java.security.AccessController.getContext;
+
+public class RichTextManager extends SimpleViewManager<RichTextView> {
     private static final int COMMAND_BOLD = 0;
     private static final int COMMAND_ITALIC = 1;
     private static final int COMMAND_UNDERLINE = 13;
@@ -37,6 +42,8 @@ public class RichTextManager extends SimpleViewManager<RichEditor> {
     private static final int COMMAND_EDITOR_FONT_SIZE = 9;
     private static final int COMMAND_EDITOR_FONT_COLOR = 10;
     private static final int COMMAND_EDITOR_BACKGROUND_COLOR = 11;
+
+    private static final int COMMAND_GET_HTML = 17;
 
     @Nullable
     @Override
@@ -65,11 +72,12 @@ public class RichTextManager extends SimpleViewManager<RichEditor> {
         map.put("editorColor",COMMAND_EDITOR_FONT_COLOR);
         map.put("editorBackground",COMMAND_EDITOR_BACKGROUND_COLOR);
 
+        map.put("getHtml", COMMAND_GET_HTML);
+
         return map;
     }
 
-    @Override
-    public void receiveCommand(@NonNull final RichEditor view, int commandId, @Nullable ReadableArray args) {
+    public void receiveCommand(@NonNull final RichTextView view, int commandId, @Nullable ReadableArray args) {
         switch (commandId) {
             case COMMAND_BOLD:
                 view.setBold();
@@ -127,8 +135,32 @@ public class RichTextManager extends SimpleViewManager<RichEditor> {
             case COMMAND_EDITOR_BACKGROUND_COLOR:
                 view.setEditorBackgroundColor(args.getInt(0));
                 break;
+
+            case COMMAND_GET_HTML:
+                view.getHtml();
+                break;
+
         }
     }
+
+    public Map getExportedCustomBubblingEventTypeConstants() {
+        MapBuilder.Builder builder = MapBuilder.builder();
+        builder.put("onReturnHtml",
+                MapBuilder.of(
+                        "phasedRegistrationNames",
+                        MapBuilder.of("bubbled", "onReturnHtml")));
+        builder.put("onChangeText",
+                MapBuilder.of(
+                        "phasedRegistrationNames",
+                        MapBuilder.of("bubbled", "onChangeText")));
+        return builder.build();
+    }
+//
+//    @Nullable
+//    @Override
+//    public Map<String,Object> getExportedCustomDirectEventTypeConstants() {
+//        return MapBuilder.of("event_wtf", MapBuilder.of("registrationName", "fuckYou"));
+//    }
 
     @NonNull
     @Override
@@ -138,15 +170,9 @@ public class RichTextManager extends SimpleViewManager<RichEditor> {
 
     @NonNull
     @Override
-    public RichEditor createViewInstance(@NonNull ThemedReactContext context) {
-        RichEditor editor = new RichEditor(context);
+    public RichTextView createViewInstance(@NonNull ThemedReactContext context) {
+        RichTextView editor = new RichTextView(context);
         editor.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        editor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
-            @Override
-            public void onTextChange(String text) {
-                Log.d("RichEditor", "Preview " + text);
-            }
-        });
         return editor;
     }
 }
