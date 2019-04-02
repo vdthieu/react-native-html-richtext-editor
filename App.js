@@ -7,84 +7,188 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View,TouchableOpacity , requireNativeComponent, findNodeHandle, UIManager} from 'react-native';
-
-const instructions = Platform.select({
-    ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-    android:
-        'Double tap R on your keyboard to reload,\n' +
-        'Shake or press menu button for dev menu',
-});
-
-const RichText = requireNativeComponent('RichEditText');
-const RichTextConfig = UIManager.getViewManagerConfig('RichEditText');
+import {Text, View,TouchableOpacity, StyleSheet } from 'react-native';
+import Editor from './RichTextEditor'
 
 type Props = {};
 export default class App extends Component<Props> {
-
-    fontSize = 10;
+    fontSize = 20
 
     setBold = () => {
-        console.log(RichTextConfig)
-        UIManager.dispatchViewManagerCommand(this.nodeId,0,null)
+        this.editorRef.setBold()
     };
 
     setItalic = () => {
-        UIManager.dispatchViewManagerCommand(this.nodeId,1,null)
+        this.editorRef.setItalic()
     };
 
-    setFontSize = () => {
-        this.fontSize -= 1;
-        UIManager.dispatchViewManagerCommand(this.nodeId,RichTextConfig.Commands.fontSize,[this.fontSize]);
-        this.forceUpdate();
+    setUnderline = () => {
+        this.editorRef.setUnderline()
     };
 
-    setFontSize2 = () => {
-        this.fontSize += 1;
-        UIManager.dispatchViewManagerCommand(this.nodeId,RichTextConfig.Commands.fontSize,[this.fontSize]);
-        this.forceUpdate();
+    setStrike = () => {
+        this.editorRef.setStrike();
+    }
+
+    upFontSize = () => {
+        this.fontSize +=1;
+        this.editorRef.setFontSize(this.fontSize)
     };
 
+    downFontSize = () => {
+        this.fontSize -=1;
+        this.editorRef.setFontSize(this.fontSize)
+    };
 
+    setColor = color => {
+        this.editorRef.setTextColor(color)
+    };
+    
+    setBackground =  color => {
+        this.editorRef.setBackground(color)
+    };
 
     componentDidMount(): void {
-        console.log(RichTextConfig)
-        this.nodeId = findNodeHandle(this.richTextRef);
+        this.editorRef.setFontSize(this.fontSize)
     }
 
     render() {
         return (
             <View style={styles.container}>
-                <View style={{overflow: 'hidden',flex : 1, height :300,}}>
-
-                    <RichText style={{backgroundColor: 'green', borderWidth: 1, color : 'blue',flex : 1}}
-                              bold={true}
-                              ref={ref => this.richTextRef = ref}
-                              autoComplete={'off'}
-                              autoCorrect={false}
+                <View style={{flex : 1, height :300,}}>
+                    <Editor ref = {ref => this.editorRef = ref}
+                            style={{flex : 1}}
                     />
                 </View>
-                <View style={{flex: 1,flexDirection : 'row'}}>
-                    <TouchableOpacity style={{flex : 1, height : 40, backgroundColor : 'red'}}
-                                      onPress={this.setBold}
-                    >
-                        <Text>Bold</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{flex : 1, height : 40, backgroundColor : 'green'}}
-                                      onPress={this.setItalic}
-                    >
-                        <Text>Italic</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{flex : 1, height : 40, backgroundColor : 'blue'}}
-                                      onPress={this.setFontSize}
-                    >
-                        <Text>Font + {this.fontSize} </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{flex : 1, height : 40, backgroundColor : 'blue'}}
-                                      onPress={this.setFontSize2}
-                    >
-                        <Text>Font + {this.fontSize} </Text>
-                    </TouchableOpacity>
+                <View style={{flex: 1}}>
+                    <View style={styles.row}>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={this.setBold}
+                        >
+                            <Text>B</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={this.setItalic}
+                        >
+                            <Text>I</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={this.setUnderline}
+                        >
+                            <Text>U</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={this.setStrike}
+                        >
+                            <Text>I</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={this.upFontSize}
+                        >
+                            <Text>Font +</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={this.downFontSize}
+                        >
+                            <Text>Font -</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {/*row 2*/}
+                    <View style={styles.row}>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setColor('red')}
+                        >
+                            <Text>Color Red</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setColor('blue')}
+                        >
+                            <Text>Color Blue</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setColor('green')}
+                        >
+                            <Text>Color Green</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setColor('gray')}
+                        >
+                            <Text>Color Gray</Text>
+                        </TouchableOpacity>
+
+                    </View>
+                    {/*row 3*/}
+                    <View style={styles.row}>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setBackground('red')}
+                        >
+                            <Text>BG Red</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setBackground('blue')}
+                        >
+                            <Text>BG Blue</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setBackground('green')}
+                        >
+                            <Text>BG Green</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setBackground('gray')}
+                        >
+                            <Text>BG Gray</Text>
+                        </TouchableOpacity>
+
+                    </View>
+                    {/*row 4*/}
+                    <View style={styles.row}>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.editorRef.setIndent()}
+                        >
+                            <Text>Indent</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.editorRef.setOutDent()}
+                        >
+                            <Text>BG Blue</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setBackground('green')}
+                        >
+                            <Text>BG Green</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setBackground('gray')}
+                        >
+                            <Text>BG Gray</Text>
+                        </TouchableOpacity>
+
+                    </View>
+                    {/*row 5*/}
+                    <View style={styles.row}>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.editorRef.setIndent()}
+                        >
+                            <Text>Indent</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.editorRef.setOutDent()}
+                        >
+                            <Text>Outdent</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setBackground('green')}
+                        >
+                            <Text>BG Green</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button}
+                                          onPress={() => this.setBackground('gray')}
+                        >
+                            <Text>BG Gray</Text>
+                        </TouchableOpacity>
+
+                    </View>
                 </View>
             </View>
         );
@@ -106,4 +210,17 @@ const styles = StyleSheet.create({
         color: '#333333',
         marginBottom: 5,
     },
+    row : {
+        flexDirection: 'row',
+        marginTop : 10,
+    },
+    button : {
+        flex : 1,
+        marginHorizontal : 10,
+        paddingVertical :10,
+        borderColor : 'gray',
+        borderWidth : 1,
+        justifyContent : 'center',
+        alignItems : 'center'
+    }
 });
