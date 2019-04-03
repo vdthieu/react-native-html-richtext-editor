@@ -11,6 +11,8 @@ import {Text, View,TouchableOpacity, StyleSheet, ViewPropTypes } from 'react-nat
 import Editor from './RichTextEditor'
 import RichTextEditor from "./RichTextEditor/RichTextEditor";
 
+const initString = "Vo DInh Trung <b>Hiue</b>"
+
 export default class App extends Component<Props> {
     fontSize = 20
 
@@ -59,6 +61,7 @@ export default class App extends Component<Props> {
                     <Editor ref = {ref => this.editorRef = ref}
                             style={styles.editor}
                             onChangeText = {text => console.log('on change',text)}
+                            initValue={initString}
                     />
                 </View>
                 <View style={{flex: 1}}>

@@ -6,7 +6,8 @@ const RichTextConfig = UIManager.getViewManagerConfig('RichEditText');
 
 class RichTextEditor extends Component {
     static defaultProps = {
-        onChangeText : () => {}
+        onChangeText : () => {},
+        onTypeChange : () => {}, //"BOLD", "ITALIC"
     };
 
     static ALIGNS = {
@@ -79,13 +80,24 @@ class RichTextEditor extends Component {
         }
     };
 
+    setHtml = text => {
+        UIManager.dispatchViewManagerCommand(this.nodeId,
+            RichTextConfig.Commands.setHtml,
+            [text])
+    };
+
     onChangeText = ({nativeEvent : {html}}) => {
         this.props.onChangeText(html)
     };
 
+    onTypeChange = ({nativeEvent : {types}}) => {
+        console.log(types)
+        this.props.onTypeChange(types)
+    };
+
     componentDidMount(): void {
         this.nodeId = findNodeHandle(this.richTextRef);
-        const {style} = this.props;
+        const {style,initValue} = this.props;
         if(style){
             const _style = StyleSheet.flatten(style);
             if(_style.hasOwnProperty('color')){
@@ -97,6 +109,9 @@ class RichTextEditor extends Component {
             if(_style.hasOwnProperty('fontSize')){
                 this.setFontSize(parseInt(_style.fontSize))
             }
+            if(initValue){
+                this.setHtml(initValue);
+            }
         }
     }
 
@@ -107,6 +122,7 @@ class RichTextEditor extends Component {
                           ref={ref => this.richTextRef = ref}
                           onReturnHtml={this.onReturnHtml}
                           onChangeText={this.onChangeText}
+                          onTypeChange={this.onTypeChange}
                 />
             </View>
         )

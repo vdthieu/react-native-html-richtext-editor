@@ -44,6 +44,7 @@ public class RichTextManager extends SimpleViewManager<RichTextView> {
     private static final int COMMAND_EDITOR_BACKGROUND_COLOR = 11;
 
     private static final int COMMAND_GET_HTML = 17;
+    private static final int COMMAND_SET_HTML = 18;
 
     @Nullable
     @Override
@@ -73,6 +74,7 @@ public class RichTextManager extends SimpleViewManager<RichTextView> {
         map.put("editorBackground",COMMAND_EDITOR_BACKGROUND_COLOR);
 
         map.put("getHtml", COMMAND_GET_HTML);
+        map.put("setHtml", COMMAND_SET_HTML);
 
         return map;
     }
@@ -138,6 +140,9 @@ public class RichTextManager extends SimpleViewManager<RichTextView> {
 
             case COMMAND_GET_HTML:
                 view.getHtml();
+
+            case COMMAND_SET_HTML:
+                view.setHtml(args.getString(0));
                 break;
 
         }
@@ -153,6 +158,10 @@ public class RichTextManager extends SimpleViewManager<RichTextView> {
                 MapBuilder.of(
                         "phasedRegistrationNames",
                         MapBuilder.of("bubbled", "onChangeText")));
+        builder.put("onTypeChange",
+                MapBuilder.of(
+                        "phasedRegistrationNames",
+                        MapBuilder.of("bubbled", "onTypeChange")));
         return builder.build();
     }
 //

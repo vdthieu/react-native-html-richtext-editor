@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
@@ -11,6 +12,7 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.List;
 
 import jp.wasabeef.richeditor.RichEditor;
@@ -32,6 +34,24 @@ public class RichTextView extends RichEditor{
                 reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                         getId(),
                         "onChangeText",
+                        event
+                );
+            }
+        });
+
+        this.setOnDecorationChangeListener(new OnDecorationStateListener() {
+            @Override
+            public void onStateChangeListener(String text, List<Type> types) {
+                WritableMap event = Arguments.createMap();
+                WritableArray arrayTypes = Arguments.createArray();
+                for(Type type:types){
+                    arrayTypes.pushString(type.toString());
+                }
+                event.putArray("types",arrayTypes);
+                ReactContext reactContext = (ReactContext)getContext();
+                reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                        getId(),
+                        "onTypeChange",
                         event
                 );
             }
